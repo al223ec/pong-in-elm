@@ -2,20 +2,45 @@ module Main exposing (..)
 
 import Html exposing (Html, div, text, program)
 import Mouse
-import Keyboard
+import Time exposing (..)
+import Keyboard exposing (..)
+import Set exposing (Set)
 import Char
+import AnimationFrame exposing (..)
 
 
 -- MODEL
 
 
-type alias Model =
-    Int
+type State
+    = Play
+    | Pause
 
 
-init : ( Model, Cmd Msg )
+type alias Input =
+    { space : Bool
+    , paddle1 : Int
+    , paddle2 : Int
+    }
+
+
+type alias Game =
+    { keysDown : Set KeyCode
+    , windowDimensions : ( Int, Int )
+    , state : State
+
+    -- , delta : Time
+    }
+
+
+init : ( Game, Cmd Msg )
 init =
-    ( 0, Cmd.none )
+    ( { keysDown = Set.empty
+      , windowDimensions = ( 0, 0 )
+      , state = Pause
+      }
+    , Cmd.none
+    )
 
 
 
@@ -23,47 +48,47 @@ init =
 
 
 type Msg
-    = MouseMsg Mouse.Position
-    | KeyMsg Keyboard.KeyCode
+    = KeyUpMsg Keyboard.KeyCode
+    | KeyDownMsg Keyboard.KeyCode
 
 
 
 -- VIEW
 
 
-view : Model -> Html Msg
-view model =
+view : Game -> Html Msg
+view game =
     div []
-        [ text (toString model) ]
+        [ text (toString game.keysDown) ]
 
 
 
 -- UPDATE
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update : Msg -> Game -> ( Game, Cmd Msg )
+update msg game =
     case msg of
-        MouseMsg position ->
-            ( model + 1, Cmd.none )
+        KeyUpMsg code ->
+            ( { game | keysDown = Set.remove code game.keysDown }, Cmd.none )
 
-        KeyMsg code ->
-            ( model + 2, Cmd.none )
+        KeyDownMsg code ->
+            ( { game | keysDown = Set.insert code game.keysDown }, Cmd.none )
 
 
 
 -- SUBSCRIPTION
 
 
-subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions : Game -> Sub Msg
+subscriptions game =
     Sub.batch
-        [ Mouse.clicks MouseMsg
-        , Keyboard.downs KeyMsg
+        [ Keyboard.downs KeyDownMsg
+        , Keyboard.ups KeyUpMsg
         ]
 
 
-main : Program Never Model Msg
+main : Program Never Game Msg
 main =
     program
         { init = init

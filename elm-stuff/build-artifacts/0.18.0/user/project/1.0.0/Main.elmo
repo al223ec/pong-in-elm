@@ -1,38 +1,72 @@
 var _user$project$Main$update = F2(
-	function (msg, model) {
+	function (msg, game) {
 		var _p0 = msg;
-		if (_p0.ctor === 'MouseMsg') {
-			return {ctor: '_Tuple2', _0: model + 1, _1: _elm_lang$core$Platform_Cmd$none};
+		if (_p0.ctor === 'KeyUpMsg') {
+			return {
+				ctor: '_Tuple2',
+				_0: _elm_lang$core$Native_Utils.update(
+					game,
+					{
+						keysDown: A2(_elm_lang$core$Set$remove, _p0._0, game.keysDown)
+					}),
+				_1: _elm_lang$core$Platform_Cmd$none
+			};
 		} else {
-			return {ctor: '_Tuple2', _0: model + 2, _1: _elm_lang$core$Platform_Cmd$none};
+			return {
+				ctor: '_Tuple2',
+				_0: _elm_lang$core$Native_Utils.update(
+					game,
+					{
+						keysDown: A2(_elm_lang$core$Set$insert, _p0._0, game.keysDown)
+					}),
+				_1: _elm_lang$core$Platform_Cmd$none
+			};
 		}
 	});
-var _user$project$Main$view = function (model) {
+var _user$project$Main$view = function (game) {
 	return A2(
 		_elm_lang$html$Html$div,
 		{ctor: '[]'},
 		{
 			ctor: '::',
 			_0: _elm_lang$html$Html$text(
-				_elm_lang$core$Basics$toString(model)),
+				_elm_lang$core$Basics$toString(game.keysDown)),
 			_1: {ctor: '[]'}
 		});
 };
-var _user$project$Main$init = {ctor: '_Tuple2', _0: 0, _1: _elm_lang$core$Platform_Cmd$none};
-var _user$project$Main$KeyMsg = function (a) {
-	return {ctor: 'KeyMsg', _0: a};
+var _user$project$Main$Input = F3(
+	function (a, b, c) {
+		return {space: a, paddle1: b, paddle2: c};
+	});
+var _user$project$Main$Game = F3(
+	function (a, b, c) {
+		return {keysDown: a, windowDimensions: b, state: c};
+	});
+var _user$project$Main$Pause = {ctor: 'Pause'};
+var _user$project$Main$init = {
+	ctor: '_Tuple2',
+	_0: {
+		keysDown: _elm_lang$core$Set$empty,
+		windowDimensions: {ctor: '_Tuple2', _0: 0, _1: 0},
+		state: _user$project$Main$Pause
+	},
+	_1: _elm_lang$core$Platform_Cmd$none
 };
-var _user$project$Main$MouseMsg = function (a) {
-	return {ctor: 'MouseMsg', _0: a};
+var _user$project$Main$Play = {ctor: 'Play'};
+var _user$project$Main$KeyDownMsg = function (a) {
+	return {ctor: 'KeyDownMsg', _0: a};
 };
-var _user$project$Main$subscriptions = function (model) {
+var _user$project$Main$KeyUpMsg = function (a) {
+	return {ctor: 'KeyUpMsg', _0: a};
+};
+var _user$project$Main$subscriptions = function (game) {
 	return _elm_lang$core$Platform_Sub$batch(
 		{
 			ctor: '::',
-			_0: _elm_lang$mouse$Mouse$clicks(_user$project$Main$MouseMsg),
+			_0: _elm_lang$keyboard$Keyboard$downs(_user$project$Main$KeyDownMsg),
 			_1: {
 				ctor: '::',
-				_0: _elm_lang$keyboard$Keyboard$downs(_user$project$Main$KeyMsg),
+				_0: _elm_lang$keyboard$Keyboard$ups(_user$project$Main$KeyUpMsg),
 				_1: {ctor: '[]'}
 			}
 		});
